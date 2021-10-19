@@ -573,7 +573,7 @@ g4 <- casosRJ_final |>
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=date, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
-           fill="orange")+
+           fill="red")+
   scale_x_date(date_breaks = "month",
                date_labels = "%b/%y")+
   scale_y_continuous(label = scales::label_number(big.mark = ".",
@@ -607,7 +607,7 @@ g5 <- casosRJ_final |>
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=date, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
-           fill="red")+
+           fill="blue")+
   scale_x_date(date_breaks = "month",
                date_labels = "%b/%y")+
   scale_y_continuous(label = scales::label_number(big.mark = ".",
@@ -641,7 +641,7 @@ g20 <- casosRJ_final |>
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=date, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
-           fill="red")+
+           fill="green")+
   scale_x_date(date_breaks = "month",
                date_labels = "%b/%y")+
   scale_y_continuous(label = scales::label_number(big.mark = ".",
