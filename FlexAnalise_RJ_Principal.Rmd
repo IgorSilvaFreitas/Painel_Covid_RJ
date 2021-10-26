@@ -293,7 +293,7 @@ temp <- tempfile()
 
 data_sis <- format(Sys.Date()-7, "%d-%m-%Y")
 
-download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD-11-10-2021.csv",
+download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD-18-10-2021.csv",
               destfile = temp)
 
 srag20 <- readr::read_csv2(temp)
