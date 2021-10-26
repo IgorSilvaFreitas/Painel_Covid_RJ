@@ -46,7 +46,7 @@ RJ <- filter(dat, state=="RJ")
 
 temp <- tempfile()
 
-download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16348180249.xlsx", 
+download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16352870872.xlsx", 
               destfile = temp, mode="wb")
 
 dados <- read_excel(temp)
@@ -80,7 +80,7 @@ dados_reorg$D1= as.numeric(dados_reorg$D1)
 
 temp <- tempfile()
 
-download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16348176183.xlsx", 
+download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16352870963.xlsx", 
               destfile = temp, mode="wb")
 
 dados2 <- read_excel(temp)
@@ -114,7 +114,7 @@ dados2_reorg$D2= as.numeric(dados2_reorg$D2)
 
 temp <- tempfile()
 
-download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16348180045.xlsx", 
+download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16352870975.xlsx", 
               destfile = temp, mode="wb")
 
 dados3 <- read_excel(temp)
