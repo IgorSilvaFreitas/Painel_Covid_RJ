@@ -188,24 +188,24 @@ RJ$date= as.Date.character(RJ$date, tryFormats= "%Y-%m-%d")
 
 load("municipio.rdata")
 
-#casosRJ_final = BaseFinalRJ
-casosRJ_final = RJ
+#RJ_Total = BaseFinalRJ
+RJ_Total = RJ
 
 
-#table(casosRJ_final$Municipios)
-casosRJ_final <- casosRJ_final |> dplyr::filter(ibgeID!=33)
+#table(RJ_Total$Municipios)
+RJ_Total <- RJ_Total |> dplyr::filter(ibgeID!=33)
 municipios |> dplyr::rename(ibeID=populacao)
 municipios$ibgeID <- as.numeric(municipios$ibgeID)
-casosRJ_final <- left_join(casosRJ_final, municipios, by="ibgeID")
+RJ_Total <- left_join(RJ_Total, municipios, by="ibgeID")
 
-aux_semana <- casosRJ_final |> 
+aux_semana <- RJ_Total |> 
   dplyr::distinct(epi_week)
 
-aux_nome <- casosRJ_final |> 
+aux_nome <- RJ_Total |> 
   dplyr::distinct(city)
 
-casosRJ_final$date <- ymd(casosRJ_final$date)
-aux_data = casosRJ_final |> 
+RJ_Total$date <- ymd(RJ_Total$date)
+aux_data = RJ_Total |> 
   distinct(date)
 
 MM_casos = matrix(NA, dim(aux_nome)[1], nrow = length(aux_data$date))
@@ -218,7 +218,7 @@ MM_ocup_Uti = matrix(NA, ncol=dim(aux_nome)[1], nrow = length(aux_data$date))
 
 j = 1
 for(i in aux_nome$city){
-  base_aux = casosRJ_final  |>
+  base_aux = RJ_Total  |>
     filter(city == i) |> 
     arrange(date) |>
     distinct(city, date, .keep_all = T)
@@ -277,17 +277,17 @@ MM_aux_ocup_Uti <- as_tibble(MM_ocup_Uti)
 MM_aux_ocup_Uti$date <- aux_data$date
 MM_aux_geral_ocup_Uti <- gather(MM_aux_ocup_Uti, key = "city", value = "MM_ocup_Uti", -date)
 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_casos, by = c("date", "city"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_casos, by = c("date", "city"))
 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_obitos, by = c("date", "city"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_obitos, by = c("date", "city"))
 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_vacina, by = c("date", "city"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_vacina, by = c("date", "city"))
 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_vacina2, by = c("date", "city"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_vacina2, by = c("date", "city"))
 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_ocup_Cli, by = c("date", "city"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_ocup_Cli, by = c("date", "city"))
 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_ocup_Uti, by = c("date", "city"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_ocup_Uti, by = c("date", "city"))
 
 #pop dos estados do Brasil 2021 (na coluna Valor)
 #estados = get_sidra(api="/t/6579/n3/all/v/all/p/last%201")
@@ -295,9 +295,9 @@ casosRJ_final = left_join(casosRJ_final,MM_aux_geral_ocup_Uti, by = c("date", "c
 #  rename(ibgeID= 'Unidade da Federação (Código)', populacao= Valor) |> 
 #  arrange(ibgeID) |> 
 #  select(ibgeID, populacao)
-casosRJ_final$populacao= 17463349
+RJ_Total$populacao= 17463349
 
-#save(casosRJ_final, file="casosRJ_final.rdata")
+#save(RJ_Total, file="RJ_Total.rdata")
 
 ########################################################################################
 #SRAG20
@@ -353,24 +353,24 @@ image = image_fill(image_read("logo_get_uff_covid.png"),"none")
 raster = as.raster(image)
 doses = readPNG("doses.png")
 
-casosRJ_final0 = casosRJ_final
+RJ_Muni = RJ_Total
 
-casosRJ_final0 = casosRJ_final0 |> 
+RJ_Muni = RJ_Muni |> 
   group_by(date) |> 
   summarise(contagem= n(), newDeaths= sum(newDeaths, na.rm=T), deaths= sum(deaths, na.rm=T), 
             newCases= sum(newCases, na.rm=T), totalCases= sum(totalCases, na.rm=T), D1= sum(D1,   na.rm=T), D2= sum(D2, na.rm=T), D3= sum(D3, na.rm=T), ocupacaoConfirmadoCli= sum(ocupacaoConfirmadoCli, na.rm=T), ocupacaoConfirmadoUti= sum(ocupacaoConfirmadoUti, na.rm=T))
 
-casosRJ_final0$MM_casos = round(movavg(casosRJ_final0$newCases, n = 7,type = "s"),0)
+RJ_Muni$MM_casos = round(movavg(RJ_Muni$newCases, n = 7,type = "s"),0)
   
-casosRJ_final0$MM_obitos = round(movavg(casosRJ_final0$newDeaths, n = 7,type = "s"),0)
+RJ_Muni$MM_obitos = round(movavg(RJ_Muni$newDeaths, n = 7,type = "s"),0)
   
-casosRJ_final0$MM_vacina = round(movavg(casosRJ_final0$D1, n=7, type="s"),0)
+RJ_Muni$MM_vacina = round(movavg(RJ_Muni$D1, n=7, type="s"),0)
   
-casosRJ_final0$MM_vacina2 = round(movavg(casosRJ_final0$D2, n=7, type="s"),0)
+RJ_Muni$MM_vacina2 = round(movavg(RJ_Muni$D2, n=7, type="s"),0)
   
-casosRJ_final0$MM_ocup_Cli = round(movavg(casosRJ_final0$ocupacaoConfirmadoCli, n=7, type="s"),0)
+RJ_Muni$MM_ocup_Cli = round(movavg(RJ_Muni$ocupacaoConfirmadoCli, n=7, type="s"),0)
   
-casosRJ_final0$MM_ocup_Uti = round(movavg(casosRJ_final0$ocupacaoConfirmadoUti, n=7, type="s"),0)
+RJ_Muni$MM_ocup_Uti = round(movavg(RJ_Muni$ocupacaoConfirmadoUti, n=7, type="s"),0)
 
 ########################################################################################
 srag20 = srag20 |> 
@@ -409,11 +409,11 @@ column {data-width=500, .tabset}
 ### Casos diários
   
 ```{r}
-casosRJ_final0$`Média móvel` <- round(casosRJ_final0$MM_casos,0)
-casosRJ_final0$`Casos novos` <- casosRJ_final0$newCases
-casosRJ_final0$Data <- casosRJ_final0$date
+RJ_Muni$`Média móvel` <- round(RJ_Muni$MM_casos,0)
+RJ_Muni$`Casos novos` <- RJ_Muni$newCases
+RJ_Muni$Data <- RJ_Muni$date
 
-g1 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Casos novos`))+ 
+g1 <- RJ_Muni |> ggplot(aes(x=Data, y=`Casos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -444,10 +444,10 @@ ggplotly(g1) |>
 ### Óbitos diários
 
 ```{r}
-casosRJ_final0$`Média móvel` <- round(casosRJ_final0$MM_obitos,0)
-casosRJ_final0$`Óbitos novos` <- casosRJ_final0$newDeaths
+RJ_Muni$`Média móvel` <- round(RJ_Muni$MM_obitos,0)
+RJ_Muni$`Óbitos novos` <- RJ_Muni$newDeaths
 
-g2 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
+g2 <- RJ_Muni |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -478,10 +478,10 @@ ggplotly(g2) |>
 ### Ocupação diária de leitos clínicos
   
 ```{r}
-casosRJ_final0$`Leitos clínicos ocupados` <- casosRJ_final0$ocupacaoConfirmadoCli
-casosRJ_final0$`média móvel` <- casosRJ_final0$MM_ocup_Cli
+RJ_Muni$`Leitos clínicos ocupados` <- RJ_Muni$ocupacaoConfirmadoCli
+RJ_Muni$`média móvel` <- RJ_Muni$MM_ocup_Cli
 
-g7 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
+g7 <- RJ_Muni |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -512,10 +512,10 @@ ggplotly(g7) |>
 ### Ocupação diária de leitos de UTI
   
 ```{r}
-casosRJ_final0$`Leitos UTI ocupados` <- casosRJ_final0$ocupacaoConfirmadoUti
-casosRJ_final0$`média móvel` <- casosRJ_final0$MM_ocup_Uti
+RJ_Muni$`Leitos UTI ocupados` <- RJ_Muni$ocupacaoConfirmadoUti
+RJ_Muni$`média móvel` <- RJ_Muni$MM_ocup_Uti
 
-g8 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
+g8 <- RJ_Muni |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -549,10 +549,10 @@ column {data-width=500, .tabset}
 ### Vacinação diária
 
 ```{r}
-casosRJ_final0$`Primeira dose` <- casosRJ_final0$D1
-casosRJ_final0$`Segunda dose ou dose única` <- casosRJ_final0$D2
+RJ_Muni$`Primeira dose` <- RJ_Muni$D1
+RJ_Muni$`Segunda dose ou dose única` <- RJ_Muni$D2
 
-g3 <- casosRJ_final0 |> 
+g3 <- RJ_Muni |> 
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Primeira dose`))+ 
   geom_bar(stat="identity",
@@ -594,9 +594,9 @@ ggplotly(g3) |>
 ### Vacinação diária da 1ª dose
 
 ```{r}
-casosRJ_final0$`Vacinas aplicadas` <- casosRJ_final0$D1
+RJ_Muni$`Vacinas aplicadas` <- RJ_Muni$D1
 
-g4 <- casosRJ_final0 |> 
+g4 <- RJ_Muni |> 
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -628,9 +628,9 @@ ggplotly(g4) |>
 ### Vacinação diária da 2ª dose ou Dose Única
 
 ```{r}
-casosRJ_final0$`Vacinas aplicadas` <- casosRJ_final0$D2
+RJ_Muni$`Vacinas aplicadas` <- RJ_Muni$D2
 
-g5 <- casosRJ_final0 |>   
+g5 <- RJ_Muni |>   
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -662,9 +662,9 @@ ggplotly(g5) |>
 ### Vacinação diária da 3° dose
 
 ```{r}
-casosRJ_final0$`Vacinas aplicadas` <- casosRJ_final0$D3
+RJ_Muni$`Vacinas aplicadas` <- RJ_Muni$D3
 
-g20 <- casosRJ_final0 |>   
+g20 <- RJ_Muni |>   
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -807,34 +807,34 @@ column {data-width=200}
 #  rename(ibgeID= 'Unidade da Federação (Código)', populacao= Valor) |> 
 #  arrange(ibgeID) |> 
 #  select(ibgeID, populacao)
-casosRJ_final0$populacao= 17463349
+RJ_Muni$populacao= 17463349
 
 
 #Acumulado das vacinas aplicadas
-casosRJ_final0= casosRJ_final0 |> 
+RJ_Muni= RJ_Muni |> 
   filter(date>= "2021-01-01")
-casosRJ_final0$D1= as.character(casosRJ_final0$D1)
-for (i in 1:length(casosRJ_final0$D1)){
-  if(is.na(casosRJ_final0$D1[i]==T)) casosRJ_final0$D1[i]="Nao informado"
+RJ_Muni$D1= as.character(RJ_Muni$D1)
+for (i in 1:length(RJ_Muni$D1)){
+  if(is.na(RJ_Muni$D1[i]==T)) RJ_Muni$D1[i]="Nao informado"
 }
-casosRJ_final0= dplyr::filter(casosRJ_final0, D1!="Nao informado")
-casosRJ_final0$D1= as.numeric(casosRJ_final0$D1)
+RJ_Muni= dplyr::filter(RJ_Muni, D1!="Nao informado")
+RJ_Muni$D1= as.numeric(RJ_Muni$D1)
 
-casosRJ_final0$D1_AC= cumsum(casosRJ_final0$D1)
-casosRJ_final0$D2_AC= cumsum(casosRJ_final0$D2)
-casosRJ_final0$D3_AC= cumsum(casosRJ_final0$D3)
+RJ_Muni$D1_AC= cumsum(RJ_Muni$D1)
+RJ_Muni$D2_AC= cumsum(RJ_Muni$D2)
+RJ_Muni$D3_AC= cumsum(RJ_Muni$D3)
 
-casosRJ_final0$D2_AC= as.character(casosRJ_final0$D2_AC)
-for (i in 1:length(casosRJ_final0$D2_AC)){
-  if((casosRJ_final0$date[i]<"2021-01-17")) casosRJ_final0$D2_AC[i]=NA
+RJ_Muni$D2_AC= as.character(RJ_Muni$D2_AC)
+for (i in 1:length(RJ_Muni$D2_AC)){
+  if((RJ_Muni$date[i]<"2021-01-17")) RJ_Muni$D2_AC[i]=NA
 }
-casosRJ_final0$D2_AC= as.numeric(casosRJ_final0$D2_AC)
+RJ_Muni$D2_AC= as.numeric(RJ_Muni$D2_AC)
 
-casosRJ_final0$D3_AC= as.character(casosRJ_final0$D3_AC)
-for (i in 1:length(casosRJ_final0$D3_AC)){
-  if((casosRJ_final0$date[i]<"2021-08-03")) casosRJ_final0$D3_AC[i]=NA
+RJ_Muni$D3_AC= as.character(RJ_Muni$D3_AC)
+for (i in 1:length(RJ_Muni$D3_AC)){
+  if((RJ_Muni$date[i]<"2021-08-03")) RJ_Muni$D3_AC[i]=NA
 }
-casosRJ_final0$D3_AC= as.numeric(casosRJ_final0$D3_AC)
+RJ_Muni$D3_AC= as.numeric(RJ_Muni$D3_AC)
 
 
 #RJ_map <- get_brmap(geo = "City",
@@ -842,7 +842,7 @@ casosRJ_final0$D3_AC= as.numeric(casosRJ_final0$D3_AC)
 #                    class = "sf")
 #RJ_map = filter(RJ_map, nome=="RJ")
 
-#BaseRJ_aux = casosRJ_final0
+#BaseRJ_aux = RJ_Muni
 #BaseRJ_aux$city = sub(pattern = "/RJ", replacement = "", x = BaseRJ_aux$city)
 #BaseRJ_aux$city = str_to_upper(BaseRJ_aux$city)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
@@ -851,7 +851,7 @@ casosRJ_final0$D3_AC= as.numeric(casosRJ_final0$D3_AC)
 
 
 # Criando AS TAXAS
-RJ = casosRJ_final0
+RJ = RJ_Muni
 RJ = RJ |> 
   filter(date== max(date)) |> 
   mutate(taxaD1= round(D1_AC/populacao, 2),
@@ -892,11 +892,11 @@ column {data-width=800}
 ### Vacinação acumulada por tipo de dose
 
 ```{r }
-casosRJ_final0$`Aplicações primeira dose` <- casosRJ_final0$D1_AC
-casosRJ_final0$`Aplicações segunda dose ou dose única` <- casosRJ_final0$D2_AC
-casosRJ_final0$`Aplicações terceira dose` <- casosRJ_final0$D3_AC
+RJ_Muni$`Aplicações primeira dose` <- RJ_Muni$D1_AC
+RJ_Muni$`Aplicações segunda dose ou dose única` <- RJ_Muni$D2_AC
+RJ_Muni$`Aplicações terceira dose` <- RJ_Muni$D3_AC
 
-g6 <- casosRJ_final0 |> 
+g6 <- RJ_Muni |> 
   ggplot(aes(x=Data, y=`Aplicações primeira dose`, fill = "Primeira dose"))+ 
   geom_line(col= "red")+
   geom_line(aes(y= `Aplicações segunda dose ou dose única`, fill = "Segunda dose ou dose única"),
@@ -931,31 +931,31 @@ ggplotly(g6) |>
 
 
 ```{r}
-#load("casosRJ_final.rdata")
+#load("RJ_Total.rdata")
 #load("srag20.rdata")
 #load("srag21.rdata")
 
 load("municipio.rdata")
 
-#casosRJ_final = BaseFinalRJ
-#casosRJ_final = dados
+#RJ_Total = BaseFinalRJ
+#RJ_Total = dados
 #rm(BaseFinalRJ)
 #rm(dados)
-#casosRJ_final$Populacao = as.numeric(as.character(casosRJ_final$Populacao))
+#RJ_Total$Populacao = as.numeric(as.character(RJ_Total$Populacao))
 
-#casosRJ_final = casosRJ_final |> 
+#RJ_Total = RJ_Total |> 
 #  mutate(tx_casos_mil_diaria = round(CasosNovos / Populacao * 100000, 2),
 #         tx_casos_mil = round(CasosAcumulados / Populacao * 100000, 2),
 #         tx_mort_mil_diaria = round(ObitosNovos / Populacao * 100000, 2),
 #         tx_mort_mil = round(ObitosAcumulados / Populacao * 100000, 2),
 #         letalidade = round(ObitosAcumulados / CasosAcumulados * 100, 2))
 
-#table(casosRJ_final$Municipios)
-casosRJ_final <- casosRJ_final |> dplyr::filter(ibgeID!=33)
+#table(RJ_Total$Municipios)
+RJ_Total <- RJ_Total |> dplyr::filter(ibgeID!=33)
 municipios$ibgeID <- as.numeric(municipios$ibgeID)
-#casosRJ_final <- left_join(casosRJ_final, municipios, by="ibgeID")
+#RJ_Total <- left_join(RJ_Total, municipios, by="ibgeID")
 
-casosRJ_final <- casosRJ_final |> 
+RJ_Total <- RJ_Total |> 
   rename(Municipios=city,
          Data=date,
          CasosNovos=newCases,
@@ -967,34 +967,34 @@ casosRJ_final <- casosRJ_final |>
          Populacao=populacao)
 
 
-casosRJ_final <- casosRJ_final |> 
+RJ_Total <- RJ_Total |> 
   mutate(letalidade=round(deaths_by_totalCases * 100,2),
          tx_mort_mil_diaria=round(ObitosNovos / Populacao * 100000, 2),
          tx_casos_mil_diaria = round(CasosNovos / Populacao * 100000, 2))
 
-aux_nome = casosRJ_final |> 
+aux_nome = RJ_Total |> 
   distinct(Municipios)
 
-casosRJ_final$Data <- ymd(casosRJ_final$Data)
-aux_data = casosRJ_final |> 
+RJ_Total$Data <- ymd(RJ_Total$Data)
+aux_data = RJ_Total |> 
   distinct(Data)
 
-MM_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-MM_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-MM_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-MM_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-MM_tx_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-MM_tx_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-tx_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-tx_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-#prop_CasosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-#prop_ObitosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
-#total_casos_periodo1 = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_final$Municipios)))
+MM_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+MM_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+MM_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+MM_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+MM_tx_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+MM_tx_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+tx_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+tx_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+#prop_CasosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+#prop_ObitosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
+#total_casos_periodo1 = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(RJ_Total$Municipios)))
 
 #Periodo1 = os 7 dias mais recentes
-#periodo1 = c(max(casosRJ_final$Data, na.rm = T),max(casosRJ_final$Data, na.rm = T) - 6) 
+#periodo1 = c(max(RJ_Total$Data, na.rm = T),max(RJ_Total$Data, na.rm = T) - 6) 
 #periodo1_br = paste(day(periodo1),"/",month(periodo1),"/",year(periodo1),sep="")
 #Periodo2 = os 7 dias anteriores aos dias da periodo 1
 #periodo2 = c(periodo1[2]-1,periodo1[2] - 7)
@@ -1003,7 +1003,7 @@ tx_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosRJ_fin
 aux_inconsistencia = c()
 j = 1
 for(i in aux_nome$Municipios){
-  base_aux = casosRJ_final  |>
+  base_aux = RJ_Total  |>
     filter(Municipios == i) |> 
     arrange(Data) |>
     distinct(Municipios, Data, .keep_all = T)
@@ -1013,7 +1013,7 @@ for(i in aux_nome$Municipios){
   
   #Casos
   MM_casos[l:d,j] = movavg(base_aux$CasosNovos, n = 7,type = "s")
-  MM_casos_max[,j]=rep(max(MM_casos[,j],na.rm = TRUE),max(table(casosRJ_final$Municipios)))
+  MM_casos_max[,j]=rep(max(MM_casos[,j],na.rm = TRUE),max(table(RJ_Total$Municipios)))
   
   if(MM_casos[t,j] < 0 | MM_casos[t - 14,j] < 0){
     aux_inconsistencia[j] = i
@@ -1024,11 +1024,11 @@ for(i in aux_nome$Municipios){
   MM_tx_casos[l:d,j] = movavg(base_aux$tx_casos_mil_diaria, n = 7,type = "s")
   
   #Maximo dos casos
-  casos_max[,j] = rep(max(base_aux$CasosAcumulados), max(table(casosRJ_final$Municipios)))
+  casos_max[,j] = rep(max(base_aux$CasosAcumulados), max(table(RJ_Total$Municipios)))
   
   #Maximo das taxas de casos
   tx_casos_max[,j] = rep(max(base_aux$tx_casos_mil_diaria,na.rm = T),
-                         max(table(casosRJ_final$Municipios)))
+                         max(table(RJ_Total$Municipios)))
   
   #crescimento/decrescimetno do numero de casos novos
   # casosNovos1 = base_aux |> 
@@ -1043,9 +1043,9 @@ for(i in aux_nome$Municipios){
   
   #prop_casos = (casosNovos1 - casosNovos2) / casosNovos2 * 100
   
-  #prop_CasosNovos[,j] = rep(round(prop_casos,2), max(table(casosRJ_final$Municipios)))
+  #prop_CasosNovos[,j] = rep(round(prop_casos,2), max(table(RJ_Total$Municipios)))
   
-  #total_casos_periodo1[,j] = rep(casosNovos1,  max(table(casosRJ_final$Municipios)))
+  #total_casos_periodo1[,j] = rep(casosNovos1,  max(table(RJ_Total$Municipios)))
   
   #if(casosNovos2 < 0 | casosNovos1 < 0)
   # aux_inconsistencia[j] = i
@@ -1053,18 +1053,18 @@ for(i in aux_nome$Municipios){
   #Obitos
   MM_obitos[l:d,j] = movavg(base_aux$ObitosNovos, n = 7,type = "s")
   MM_obitos_max[,j] = rep(max(MM_obitos[,j], na.rm = T),
-                          max(table(casosRJ_final$Municipios)))
+                          max(table(RJ_Total$Municipios)))
   
   
   #taxa Obitos
   MM_tx_obitos[l:d,j] = movavg(base_aux$tx_mort_mil_diaria, n = 7,type = "s")
   
   #Maximo dos obitos
-  obitos_max[,j] = rep(max(base_aux$ObitosAcumulados), max(table(casosRJ_final$Municipios)))
+  obitos_max[,j] = rep(max(base_aux$ObitosAcumulados), max(table(RJ_Total$Municipios)))
   
   #maximo da taxa dos obitos
   tx_obitos_max[,j] = rep(max(base_aux$tx_mort_mil_diaria, na.rm = T),
-                          max(table(casosRJ_final$Municipios)))
+                          max(table(RJ_Total$Municipios)))
   
   #crescimento/decrescimetno do numero de obitos novos
   #obitosNovos1 = base_aux |> 
@@ -1078,7 +1078,7 @@ for(i in aux_nome$Municipios){
   #sum(na.rm = T)
   
   #prop_obitos = (obitosNovos1 - obitosNovos2) / obitosNovos2 * 100
-  #prop_ObitosNovos[,j] = rep(round(prop_obitos,2), max(table(casosRJ_final$Municipios)))
+  #prop_ObitosNovos[,j] = rep(round(prop_obitos,2), max(table(RJ_Total$Municipios)))
   
   
   j = j + 1
@@ -1166,32 +1166,32 @@ tx_obitos_aux_geral_max = gather(tx_obitos_aux_max, key = "Municipios", value = 
 #prop_aux_obitosNovos$Data = aux_data$Data
 #prop_aux_geral_obitosNovos = gather(prop_aux_obitosNovos, key = "Municipios", value = "Prop_ObitosNovos", -Data)
 
-#Adicionando as bases à base casosRJ_final
+#Adicionando as bases à base RJ_Total
 
 #Casos maximos e taxa maxima de casos
-casosRJ_final = left_join(casosRJ_final, casos_aux_geral_max, by = c("Data", "Municipios"))
-casosRJ_final = left_join(casosRJ_final, tx_casos_aux_geral_max, by = c("Data", "Municipios"))
+RJ_Total = left_join(RJ_Total, casos_aux_geral_max, by = c("Data", "Municipios"))
+RJ_Total = left_join(RJ_Total, tx_casos_aux_geral_max, by = c("Data", "Municipios"))
 
 # Media movel dos casos e media movel ponderada
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_casos, by = c("Data", "Municipios", "MM_casos"))
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_casos_max, by = c("Data", "Municipios"))
-casosRJ_final$MM_casos_pond = casosRJ_final$MM_casos / casosRJ_final$MM_casos_max
+RJ_Total = left_join(RJ_Total,MM_aux_geral_casos, by = c("Data", "Municipios", "MM_casos"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_casos_max, by = c("Data", "Municipios"))
+RJ_Total$MM_casos_pond = RJ_Total$MM_casos / RJ_Total$MM_casos_max
 
 #Media Movel das taxas de casos 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_tx_casos, by = c("Data", "Municipios"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_tx_casos, by = c("Data", "Municipios"))
 
 
 #obitos maximos e taxa maxima de obitos
-casosRJ_final = left_join(casosRJ_final,obitos_aux_geral_max, by = c("Data", "Municipios"))
-casosRJ_final = left_join(casosRJ_final,tx_obitos_aux_geral_max, by = c("Data", "Municipios"))
+RJ_Total = left_join(RJ_Total,obitos_aux_geral_max, by = c("Data", "Municipios"))
+RJ_Total = left_join(RJ_Total,tx_obitos_aux_geral_max, by = c("Data", "Municipios"))
 
 # Media movel dos obitos e media movel ponderada
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_obitos, by = c("Data", "Municipios", "MM_obitos"))
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_obitos_max, by = c("Data", "Municipios"))
-casosRJ_final$MM_obitos_pond = casosRJ_final$MM_obitos / casosRJ_final$MM_obitos_max
+RJ_Total = left_join(RJ_Total,MM_aux_geral_obitos, by = c("Data", "Municipios", "MM_obitos"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_obitos_max, by = c("Data", "Municipios"))
+RJ_Total$MM_obitos_pond = RJ_Total$MM_obitos / RJ_Total$MM_obitos_max
 
 #Media Movel das taxas de obitos 
-casosRJ_final = left_join(casosRJ_final,MM_aux_geral_tx_obitos, by = c("Data", "Municipios"))
+RJ_Total = left_join(RJ_Total,MM_aux_geral_tx_obitos, by = c("Data", "Municipios"))
 
 #MM_tx = left_join(MM_aux_geral_tx_casos,MM_aux_geral_tx_obitos, by = c("Data", "Municipios"))
 #MM_tx_max = left_join(tx_casos_aux_geral_max,tx_obitos_aux_geral_max, by = c("Data", "Municipios"))
@@ -1200,46 +1200,46 @@ casosRJ_final = left_join(casosRJ_final,MM_aux_geral_tx_obitos, by = c("Data", "
 #MM_final1 = left_join(MM_final, casos_aux_geral_max, by = c("Data","Municipios"))
 #MM_final2 = left_join(MM_final1, obitos_aux_geral_max, by = c("Data","Municipios"))
 #MM_final3 = left_join(MM_final2, MM_tx_final,by = c("Data","Municipios"))
-#casosRJ_final = left_join(casosRJ_final, MM_final3, by = c("Data","Municipios"))
-#casosRJ_final = left_join(casosRJ_final, prop_aux_geral_casosNovos, by = c("Data", "Municipios"))
-#casosRJ_final = left_join(casosRJ_final, total_aux_geral_casos_periodo1, by = c("Data", "Municipios"))
-#casosRJ_final = left_join(casosRJ_final, prop_aux_geral_obitosNovos, by = c("Data", "Municipios"))
+#RJ_Total = left_join(RJ_Total, MM_final3, by = c("Data","Municipios"))
+#RJ_Total = left_join(RJ_Total, prop_aux_geral_casosNovos, by = c("Data", "Municipios"))
+#RJ_Total = left_join(RJ_Total, total_aux_geral_casos_periodo1, by = c("Data", "Municipios"))
+#RJ_Total = left_join(RJ_Total, prop_aux_geral_obitosNovos, by = c("Data", "Municipios"))
 
 
 #Criando a variavel numero de dias
 
 #Calculando a data do N-ésimo caso por cidade
 N_dias_casos = 1
-primeiro_caso_RJ = casosRJ_final |> 
+primeiro_caso_RJ = RJ_Total |> 
   filter(CasosAcumulados >= N_dias_casos) |>
   group_by(Municipios) |> 
   summarise(primeiro_dia_caso = min(Data))
 
 #Calculando a data do N-ésimo caso por cidade
 N_dias_obitos = 1
-primeiro_obito_RJ = casosRJ_final |>
+primeiro_obito_RJ = RJ_Total |>
   filter(ObitosAcumulados >= N_dias_obitos) |> 
   group_by(Municipios) |> 
   summarise(primeiro_dia_obito = min(Data))
 
 #Acrescentando a data do primeiro caso por RJ na base
-casosRJ_final = left_join(casosRJ_final, primeiro_caso_RJ, by = "Municipios")
+RJ_Total = left_join(RJ_Total, primeiro_caso_RJ, by = "Municipios")
 
 #Acrescentando a data do primeiro obito por RJ na base
-casosRJ_final = left_join(casosRJ_final, primeiro_obito_RJ, by = "Municipios")
+RJ_Total = left_join(RJ_Total, primeiro_obito_RJ, by = "Municipios")
 
 #Calcluando o numero de dias desde o N-ésimo caso e N-ésimo obito para cada data notificada por RJ
-casosRJ_final = casosRJ_final |> 
+RJ_Total = RJ_Total |> 
   mutate(num_dias_caso = time_length(Data-primeiro_dia_caso, "day")+1,
          num_dias_obito = time_length(Data-primeiro_dia_obito, "day")+1)
 
-casosRJ_final$num_dias_caso[casosRJ_final$num_dias_caso <= 0] = NA
-casosRJ_final$num_dias_obito[casosRJ_final$num_dias_obito <= 0] = NA
+RJ_Total$num_dias_caso[RJ_Total$num_dias_caso <= 0] = NA
+RJ_Total$num_dias_obito[RJ_Total$num_dias_obito <= 0] = NA
 
 #Calculando letalidade e taxa por 100000 habitantes
 
 #Ultima data de coleta de dados
-data_hoje = paste(day(max(casosRJ_final$Data)),"/",month(max(casosRJ_final$Data)),"/",year(max(casosRJ_final$Data)),sep = "")
+data_hoje = paste(day(max(RJ_Total$Data)),"/",month(max(RJ_Total$Data)),"/",year(max(RJ_Total$Data)),sep = "")
 
 #Número de cidades
 num_cidades = 10
@@ -1256,10 +1256,10 @@ column {data-width=500, .tabset}
   
 ```{r fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.width = 12}
 #Criando a base de totais do ultimo dia divulgado por municipio
-base_atual_todos = casosRJ_final |>
+base_atual_todos = RJ_Total |>
   filter(Data == max(Data))
 
-base_atual = casosRJ_final |>
+base_atual = RJ_Total |>
   filter(Data == max(Data)) |> 
   top_n(CasosAcumulados, n = num_cidades)
 
@@ -1446,29 +1446,29 @@ g5
 
 
 ```{r fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10}
-#load("casosRJ_final.rdata")
-casosRJ_final2= casosRJ_final |>
+#load("RJ_Total.rdata")
+RJ_Total2= RJ_Total |>
   select(Data, Municipios, D1, D2, D3) 
 
-casosRJ_final2$D1= as.character(casosRJ_final2$D1)
-for (i in 1:length(casosRJ_final2$D1)){
-  if(is.na(casosRJ_final2$D1[i]==T)) casosRJ_final2$D1[i]=0
+RJ_Total2$D1= as.character(RJ_Total2$D1)
+for (i in 1:length(RJ_Total2$D1)){
+  if(is.na(RJ_Total2$D1[i]==T)) RJ_Total2$D1[i]=0
 }
-casosRJ_final2$D1= as.numeric(casosRJ_final2$D1)
+RJ_Total2$D1= as.numeric(RJ_Total2$D1)
 
-for (i in 1:length(casosRJ_final2$D2)){
-  if(is.na(casosRJ_final2$D2[i]==T)) casosRJ_final2$D2[i]=0
+for (i in 1:length(RJ_Total2$D2)){
+  if(is.na(RJ_Total2$D2[i]==T)) RJ_Total2$D2[i]=0
 }
-casosRJ_final2$D2= as.numeric(casosRJ_final2$D2)
+RJ_Total2$D2= as.numeric(RJ_Total2$D2)
 
-for (i in 1:length(casosRJ_final2$D3)){
-  if(is.na(casosRJ_final2$D3[i]==T)) casosRJ_final2$D3[i]=0
+for (i in 1:length(RJ_Total2$D3)){
+  if(is.na(RJ_Total2$D3[i]==T)) RJ_Total2$D3[i]=0
 }
-casosRJ_final2$D3= as.numeric(casosRJ_final2$D3)
+RJ_Total2$D3= as.numeric(RJ_Total2$D3)
 
-#Data_hoje = max(casosRJ_final$Data)
+#Data_hoje = max(RJ_Total$Data)
 
-casosRJ_final2 = casosRJ_final2 |> 
+RJ_Total2 = RJ_Total2 |> 
   group_by(Municipios) |> 
   summarise(Data= Data, D1_AC= cumsum(D1), D2_AC= cumsum(D2), 
             D3_AC= cumsum(D3))
@@ -1491,7 +1491,7 @@ rio2_map <- get_brmap(geo = "City",
                       class = "sf")
 rio2_map = rio2_map[,c(1,7)]
 
-BaseRJ_aux = casosRJ_final2
+BaseRJ_aux = RJ_Total2
 BaseRJ_aux$Municipios = str_to_upper(BaseRJ_aux$Municipios)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
 rio2 = left_join(rio2_map, BaseRJ_aux, by = c("nome" = "Municipios"))
@@ -1502,7 +1502,7 @@ rio2 = rio2 |>
   filter(Data == max(Data)) 
 
 municipios = municipios |> 
-  left_join(casosRJ_final, by= "ibgeID") |> 
+  left_join(RJ_Total, by= "ibgeID") |> 
   filter(Data == max(Data)) |> 
   mutate(Municipios = str_to_upper(Municipios))
 
