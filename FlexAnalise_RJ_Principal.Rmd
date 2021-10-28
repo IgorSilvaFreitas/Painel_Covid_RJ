@@ -353,24 +353,24 @@ image = image_fill(image_read("logo_get_uff_covid.png"),"none")
 raster = as.raster(image)
 doses = readPNG("doses.png")
 
-casosRJ_final0 = casosRJ_final
+RJ_Total = casosRJ_final
 
-casosRJ_final0 = casosRJ_final0 |> 
+RJ_Total = RJ_Total |> 
   group_by(date) |> 
   summarise(contagem= n(), newDeaths= sum(newDeaths, na.rm=T), deaths= sum(deaths, na.rm=T), 
             newCases= sum(newCases, na.rm=T), totalCases= sum(totalCases, na.rm=T), D1= sum(D1,   na.rm=T), D2= sum(D2, na.rm=T), D3= sum(D3, na.rm=T), ocupacaoConfirmadoCli= sum(ocupacaoConfirmadoCli, na.rm=T), ocupacaoConfirmadoUti= sum(ocupacaoConfirmadoUti, na.rm=T))
 
-casosRJ_final0$MM_casos = round(movavg(casosRJ_final0$newCases, n = 7,type = "s"),0)
+RJ_Total$MM_casos = round(movavg(RJ_Total$newCases, n = 7,type = "s"),0)
   
-casosRJ_final0$MM_obitos = round(movavg(casosRJ_final0$newDeaths, n = 7,type = "s"),0)
+RJ_Total$MM_obitos = round(movavg(RJ_Total$newDeaths, n = 7,type = "s"),0)
   
-casosRJ_final0$MM_vacina = round(movavg(casosRJ_final0$D1, n=7, type="s"),0)
+RJ_Total$MM_vacina = round(movavg(RJ_Total$D1, n=7, type="s"),0)
   
-casosRJ_final0$MM_vacina2 = round(movavg(casosRJ_final0$D2, n=7, type="s"),0)
+RJ_Total$MM_vacina2 = round(movavg(RJ_Total$D2, n=7, type="s"),0)
   
-casosRJ_final0$MM_ocup_Cli = round(movavg(casosRJ_final0$ocupacaoConfirmadoCli, n=7, type="s"),0)
+RJ_Total$MM_ocup_Cli = round(movavg(RJ_Total$ocupacaoConfirmadoCli, n=7, type="s"),0)
   
-casosRJ_final0$MM_ocup_Uti = round(movavg(casosRJ_final0$ocupacaoConfirmadoUti, n=7, type="s"),0)
+RJ_Total$MM_ocup_Uti = round(movavg(RJ_Total$ocupacaoConfirmadoUti, n=7, type="s"),0)
 
 ########################################################################################
 srag20 = srag20 |> 
@@ -409,11 +409,11 @@ column {data-width=500, .tabset}
 ### Casos diários
   
 ```{r}
-casosRJ_final0$`Média móvel` <- round(casosRJ_final0$MM_casos,0)
-casosRJ_final0$`Casos novos` <- casosRJ_final0$newCases
-casosRJ_final0$Data <- casosRJ_final0$date
+RJ_Total$`Média móvel` <- round(RJ_Total$MM_casos,0)
+RJ_Total$`Casos novos` <- RJ_Total$newCases
+RJ_Total$Data <- RJ_Total$date
 
-g1 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Casos novos`))+ 
+g1 <- RJ_Total |> ggplot(aes(x=Data, y=`Casos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -444,10 +444,10 @@ ggplotly(g1) |>
 ### Óbitos diários
 
 ```{r}
-casosRJ_final0$`Média móvel` <- round(casosRJ_final0$MM_obitos,0)
-casosRJ_final0$`Óbitos novos` <- casosRJ_final0$newDeaths
+RJ_Total$`Média móvel` <- round(RJ_Total$MM_obitos,0)
+RJ_Total$`Óbitos novos` <- RJ_Total$newDeaths
 
-g2 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
+g2 <- RJ_Total |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -478,10 +478,10 @@ ggplotly(g2) |>
 ### Ocupação diária de leitos clínicos
   
 ```{r}
-casosRJ_final0$`Leitos clínicos ocupados` <- casosRJ_final0$ocupacaoConfirmadoCli
-casosRJ_final0$`média móvel` <- casosRJ_final0$MM_ocup_Cli
+RJ_Total$`Leitos clínicos ocupados` <- RJ_Total$ocupacaoConfirmadoCli
+RJ_Total$`média móvel` <- RJ_Total$MM_ocup_Cli
 
-g7 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
+g7 <- RJ_Total |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -512,10 +512,10 @@ ggplotly(g7) |>
 ### Ocupação diária de leitos de UTI
   
 ```{r}
-casosRJ_final0$`Leitos UTI ocupados` <- casosRJ_final0$ocupacaoConfirmadoUti
-casosRJ_final0$`média móvel` <- casosRJ_final0$MM_ocup_Uti
+RJ_Total$`Leitos UTI ocupados` <- RJ_Total$ocupacaoConfirmadoUti
+RJ_Total$`média móvel` <- RJ_Total$MM_ocup_Uti
 
-g8 <- casosRJ_final0 |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
+g8 <- RJ_Total |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -549,10 +549,10 @@ column {data-width=500, .tabset}
 ### Vacinação diária
 
 ```{r}
-casosRJ_final0$`Primeira dose` <- casosRJ_final0$D1
-casosRJ_final0$`Segunda dose ou dose única` <- casosRJ_final0$D2
+RJ_Total$`Primeira dose` <- RJ_Total$D1
+RJ_Total$`Segunda dose ou dose única` <- RJ_Total$D2
 
-g3 <- casosRJ_final0 |> 
+g3 <- RJ_Total |> 
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Primeira dose`))+ 
   geom_bar(stat="identity",
@@ -594,9 +594,9 @@ ggplotly(g3) |>
 ### Vacinação diária da 1ª dose
 
 ```{r}
-casosRJ_final0$`Vacinas aplicadas` <- casosRJ_final0$D1
+RJ_Total$`Vacinas aplicadas` <- RJ_Total$D1
 
-g4 <- casosRJ_final0 |> 
+g4 <- RJ_Total |> 
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -628,9 +628,9 @@ ggplotly(g4) |>
 ### Vacinação diária da 2ª dose ou Dose Única
 
 ```{r}
-casosRJ_final0$`Vacinas aplicadas` <- casosRJ_final0$D2
+RJ_Total$`Vacinas aplicadas` <- RJ_Total$D2
 
-g5 <- casosRJ_final0 |>   
+g5 <- RJ_Total |>   
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -662,9 +662,9 @@ ggplotly(g5) |>
 ### Vacinação diária da 3° dose
 
 ```{r}
-casosRJ_final0$`Vacinas aplicadas` <- casosRJ_final0$D3
+RJ_Total$`Vacinas aplicadas` <- RJ_Total$D3
 
-g20 <- casosRJ_final0 |>   
+g20 <- RJ_Total |>   
   filter(date>="2021-01-01") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -807,34 +807,34 @@ column {data-width=200}
 #  rename(ibgeID= 'Unidade da Federação (Código)', populacao= Valor) |> 
 #  arrange(ibgeID) |> 
 #  select(ibgeID, populacao)
-casosRJ_final0$populacao= 17463349
+RJ_Total$populacao= 17463349
 
 
 #Acumulado das vacinas aplicadas
-casosRJ_final0= casosRJ_final0 |> 
+RJ_Total= RJ_Total |> 
   filter(date>= "2021-01-01")
-casosRJ_final0$D1= as.character(casosRJ_final0$D1)
-for (i in 1:length(casosRJ_final0$D1)){
-  if(is.na(casosRJ_final0$D1[i]==T)) casosRJ_final0$D1[i]="Nao informado"
+RJ_Total$D1= as.character(RJ_Total$D1)
+for (i in 1:length(RJ_Total$D1)){
+  if(is.na(RJ_Total$D1[i]==T)) RJ_Total$D1[i]="Nao informado"
 }
-casosRJ_final0= dplyr::filter(casosRJ_final0, D1!="Nao informado")
-casosRJ_final0$D1= as.numeric(casosRJ_final0$D1)
+RJ_Total= dplyr::filter(RJ_Total, D1!="Nao informado")
+RJ_Total$D1= as.numeric(RJ_Total$D1)
 
-casosRJ_final0$D1_AC= cumsum(casosRJ_final0$D1)
-casosRJ_final0$D2_AC= cumsum(casosRJ_final0$D2)
-casosRJ_final0$D3_AC= cumsum(casosRJ_final0$D3)
+RJ_Total$D1_AC= cumsum(RJ_Total$D1)
+RJ_Total$D2_AC= cumsum(RJ_Total$D2)
+RJ_Total$D3_AC= cumsum(RJ_Total$D3)
 
-casosRJ_final0$D2_AC= as.character(casosRJ_final0$D2_AC)
-for (i in 1:length(casosRJ_final0$D2_AC)){
-  if((casosRJ_final0$date[i]<"2021-01-17")) casosRJ_final0$D2_AC[i]=NA
+RJ_Total$D2_AC= as.character(RJ_Total$D2_AC)
+for (i in 1:length(RJ_Total$D2_AC)){
+  if((RJ_Total$date[i]<"2021-01-17")) RJ_Total$D2_AC[i]=NA
 }
-casosRJ_final0$D2_AC= as.numeric(casosRJ_final0$D2_AC)
+RJ_Total$D2_AC= as.numeric(RJ_Total$D2_AC)
 
-casosRJ_final0$D3_AC= as.character(casosRJ_final0$D3_AC)
-for (i in 1:length(casosRJ_final0$D3_AC)){
-  if((casosRJ_final0$date[i]<"2021-08-03")) casosRJ_final0$D3_AC[i]=NA
+RJ_Total$D3_AC= as.character(RJ_Total$D3_AC)
+for (i in 1:length(RJ_Total$D3_AC)){
+  if((RJ_Total$date[i]<"2021-08-03")) RJ_Total$D3_AC[i]=NA
 }
-casosRJ_final0$D3_AC= as.numeric(casosRJ_final0$D3_AC)
+RJ_Total$D3_AC= as.numeric(RJ_Total$D3_AC)
 
 
 #RJ_map <- get_brmap(geo = "City",
@@ -842,7 +842,7 @@ casosRJ_final0$D3_AC= as.numeric(casosRJ_final0$D3_AC)
 #                    class = "sf")
 #RJ_map = filter(RJ_map, nome=="RJ")
 
-#BaseRJ_aux = casosRJ_final0
+#BaseRJ_aux = RJ_Total
 #BaseRJ_aux$city = sub(pattern = "/RJ", replacement = "", x = BaseRJ_aux$city)
 #BaseRJ_aux$city = str_to_upper(BaseRJ_aux$city)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
@@ -851,7 +851,7 @@ casosRJ_final0$D3_AC= as.numeric(casosRJ_final0$D3_AC)
 
 
 # Criando AS TAXAS
-RJ = casosRJ_final0
+RJ = RJ_Total
 RJ = RJ |> 
   filter(date== max(date)) |> 
   mutate(taxaD1= round(D1_AC/populacao, 2),
@@ -892,11 +892,11 @@ column {data-width=800}
 ### Vacinação acumulada por tipo de dose
 
 ```{r }
-casosRJ_final0$`Aplicações primeira dose` <- casosRJ_final0$D1_AC
-casosRJ_final0$`Aplicações segunda dose ou dose única` <- casosRJ_final0$D2_AC
-casosRJ_final0$`Aplicações terceira dose` <- casosRJ_final0$D3_AC
+RJ_Total$`Aplicações primeira dose` <- RJ_Total$D1_AC
+RJ_Total$`Aplicações segunda dose ou dose única` <- RJ_Total$D2_AC
+RJ_Total$`Aplicações terceira dose` <- RJ_Total$D3_AC
 
-g6 <- casosRJ_final0 |> 
+g6 <- RJ_Total |> 
   ggplot(aes(x=Data, y=`Aplicações primeira dose`, fill = "Primeira dose"))+ 
   geom_line(col= "red")+
   geom_line(aes(y= `Aplicações segunda dose ou dose única`, fill = "Segunda dose ou dose única"),
@@ -1447,28 +1447,28 @@ g5
 
 ```{r fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10}
 #load("casosRJ_final.rdata")
-casosRJ_final2= casosRJ_final |>
+RJ_Muni= casosRJ_final |>
   select(Data, Municipios, D1, D2, D3) 
 
-casosRJ_final2$D1= as.character(casosRJ_final2$D1)
-for (i in 1:length(casosRJ_final2$D1)){
-  if(is.na(casosRJ_final2$D1[i]==T)) casosRJ_final2$D1[i]=0
+RJ_Muni$D1= as.character(RJ_Muni$D1)
+for (i in 1:length(RJ_Muni$D1)){
+  if(is.na(RJ_Muni$D1[i]==T)) RJ_Muni$D1[i]=0
 }
-casosRJ_final2$D1= as.numeric(casosRJ_final2$D1)
+RJ_Muni$D1= as.numeric(RJ_Muni$D1)
 
-for (i in 1:length(casosRJ_final2$D2)){
-  if(is.na(casosRJ_final2$D2[i]==T)) casosRJ_final2$D2[i]=0
+for (i in 1:length(RJ_Muni$D2)){
+  if(is.na(RJ_Muni$D2[i]==T)) RJ_Muni$D2[i]=0
 }
-casosRJ_final2$D2= as.numeric(casosRJ_final2$D2)
+RJ_Muni$D2= as.numeric(RJ_Muni$D2)
 
-for (i in 1:length(casosRJ_final2$D3)){
-  if(is.na(casosRJ_final2$D3[i]==T)) casosRJ_final2$D3[i]=0
+for (i in 1:length(RJ_Muni$D3)){
+  if(is.na(RJ_Muni$D3[i]==T)) RJ_Muni$D3[i]=0
 }
-casosRJ_final2$D3= as.numeric(casosRJ_final2$D3)
+RJ_Muni$D3= as.numeric(RJ_Muni$D3)
 
 #Data_hoje = max(casosRJ_final$Data)
 
-casosRJ_final2 = casosRJ_final2 |> 
+RJ_Muni = RJ_Muni |> 
   group_by(Municipios) |> 
   summarise(Data= Data, D1_AC= cumsum(D1), D2_AC= cumsum(D2), 
             D3_AC= cumsum(D3))
@@ -1491,7 +1491,7 @@ rio2_map <- get_brmap(geo = "City",
                       class = "sf")
 rio2_map = rio2_map[,c(1,7)]
 
-BaseRJ_aux = casosRJ_final2
+BaseRJ_aux = RJ_Muni
 BaseRJ_aux$Municipios = str_to_upper(BaseRJ_aux$Municipios)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
 rio2 = left_join(rio2_map, BaseRJ_aux, by = c("nome" = "Municipios"))
