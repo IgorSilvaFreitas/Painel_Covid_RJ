@@ -46,7 +46,7 @@ RJ <- filter(dat, state=="RJ")
 
 temp <- tempfile()
 
-download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16348180249.xlsx", 
+download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16376887451.xlsx", 
               destfile = temp, mode="wb")
 
 dados <- read_excel(temp)
@@ -80,7 +80,7 @@ dados_reorg$D1= as.numeric(dados_reorg$D1)
 
 temp <- tempfile()
 
-download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16348176183.xlsx", 
+download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16376887498.xlsx", 
               destfile = temp, mode="wb")
 
 dados2 <- read_excel(temp)
@@ -114,7 +114,7 @@ dados2_reorg$D2= as.numeric(dados2_reorg$D2)
 
 temp <- tempfile()
 
-download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16348180045.xlsx", 
+download.file(url = "http://sistemas.saude.rj.gov.br/tabnetbd/csv/pni_covid16376887514.xlsx", 
               destfile = temp, mode="wb")
 
 dados3 <- read_excel(temp)
@@ -305,7 +305,7 @@ temp <- tempfile()
 
 #data_sis <- format(Sys.Date()-7, "%d-%m-%Y")
 
-download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD-25-10-2021.csv",
+download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD-15-11-2021.csv",
               destfile = temp)
 
 srag20 <- readr::read_csv2(temp)
@@ -329,7 +329,7 @@ temp <- tempfile()
 
 #data_sis <- format(Sys.Date()-7, "%d-%m-%Y")
 
-download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-25-10-2021.csv",
+download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-15-11-2021.csv",
               destfile = temp)
 
 srag21 <- readr::read_csv2(temp)
